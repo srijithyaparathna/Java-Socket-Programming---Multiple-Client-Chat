@@ -70,71 +70,7 @@ Synchronization: Thread-safe ArrayList for client management
 
 Architecture
 System Components
-┌─────────────────────────────────────────────────┐
-│           ChatServerGUI (Port 5000)             │
-│  ┌────────────────────────────────────────┐    │
-│  │  Main Thread: ServerSocket.accept()    │    │
-│  │  Waits for incoming client connections │    │
-│  └────────────────┬───────────────────────┘    │
-│                   │                             │
-│  ┌────────────────┼───────────────────────┐    │
-│  │    ArrayList<ClientHandler> (Shared)   │    │
-│  │    Synchronized for thread safety      │    │
-│  └────────────────┬───────────────────────┘    │
-│                   │                             │
-│       ┌───────────┼───────────┐                │
-│       │           │           │                 │
-│  ┌────▼─────┐ ┌──▼──────┐ ┌──▼────────┐       │
-│  │ClientH-1 │ │ClientH-2│ │ClientH-3  │       │
-│  │ (Alice)  │ │  (Bob)  │ │ (Charlie) │       │
-│  └──────────┘ └─────────┘ └───────────┘       │
-└─────────────────────────────────────────────────┘
-         │            │            │
-    ┌────▼────┐  ┌───▼────┐  ┌───▼─────┐
-    │Client 1 │  │Client 2│  │Client 3 │
-    │ (Alice) │  │  (Bob) │  │(Charlie)│
-    └─────────┘  └────────┘  └─────────┘
-Data Flow
-User Input → GUI Event → PrintWriter → TCP Socket
-                                           ↓
-                                      Server Thread
-                                           ↓
-                                    Format Message
-                                           ↓
-                                   Broadcast to All
-                                           ↓
-                              ┌────────────┼────────────┐
-                              ↓            ↓            ↓
-                         Client 1     Client 2     Client 3
-                              ↓            ↓            ↓
-                      BufferedReader BufferedReader BufferedReader
-                              ↓            ↓            ↓
-                        Update GUI   Update GUI   Update GUI
-Project Structure
-MultiClientChatApp/
-├── src/
-│   ├── ChatServerGUI.java          # Server with multi-threading
-│   │   ├── main()                  # Entry point, starts ServerSocket
-│   │   └── ClientHandler.class     # Inner class, handles each client
-│   │       ├── run()               # Thread execution method
-│   │       └── broadcast()         # Sends messages to all clients
-│   │
-│   └── ChatClientGUI.java          # Client with GUI
-│       ├── initComponents()        # Creates GUI elements
-│       ├── connectToServer()       # Establishes TCP connection
-│       ├── sendMessage()           # Sends user input to server
-│       ├── disconnect()            # Closes connection gracefully
-│       └── IncomingMessageHandler  # Inner class, reads server messages
-│
-├── out/
-│   └── production/
-│       └── MultiClientChatApp/
-│           ├── ChatServerGUI.class
-│           ├── ChatServerGUI$ClientHandler.class
-│           ├── ChatClientGUI.class
-│           └── ChatClientGUI$IncomingMessageHandler.class
-│
-└── README.md
+
 Installation & Setup
 Prerequisites
 ![6f93637a-97b7-4a94-9b57-78e197623998](https://github.com/user-attachments/assets/3994f7e5-1d04-460a-8f98-1af2e5494e1f)
@@ -164,6 +100,7 @@ Click Apply and OK
 
 Go to Build → Build Project
 Wait for compilation to complete
+<img width="3541" height="1130" alt="Untitled diagram-2025-11-16-125856" src="https://github.com/user-attachments/assets/32740e24-39c4-4698-8593-5e3b92452423" />
 
 Usage
 Starting the Server
@@ -177,6 +114,7 @@ Server console should display:
    Waiting for clients to connect...
 Starting Multiple Clients
 First Client
+<img width="3950" height="896" alt="Untitled diagram-2025-11-16-130000" src="https://github.com/user-attachments/assets/49b81bb7-ed2d-431e-bb30-5f3b65e11e22" />
 
 Open ChatClientGUI.java in the editor
 Right-click in the code
@@ -202,6 +140,7 @@ Sending Messages
 Type your message in the text field at the bottom
 Press Enter or click the Send button
 Message is broadcast to all connected clients with timestamp
+<img width="566" height="458" alt="image" src="https://github.com/user-attachments/assets/4ee931e3-7b3f-4a35-af03-c4bc01bf1e97" />
 
 Message Format
 [14:30:45] Alice: Hello everyone!
@@ -212,6 +151,7 @@ Disconnecting
 Click the Disconnect button
 All other clients receive notification: "Alice left the chat"
 Client window becomes inactive
+<img width="640" height="331" alt="image" src="https://github.com/user-attachments/assets/c65f74ed-0ba8-4bcc-888d-ea2e6feaeb4f" />
 
 How It Works
 Server-Side Operation
