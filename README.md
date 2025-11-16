@@ -160,42 +160,13 @@ java// Create ServerSocket listening on port 5000
 ServerSocket serverSocket = new ServerSocket(5000);
 
 // Infinite loop to accept client connections
-while (true) {
-    Socket clientSocket = serverSocket.accept(); // BLOCKS until client connects
-    ClientHandler handler = new ClientHandler(clientSocket);
-    handler.start(); // Start new thread for this client
-}
+Start new thread for this client
+
 2. Client Connection Handling
 javapublic void run() {
     // Read username from client
     username = in.readLine();
-    
-    // Add to shared list (thread-safe)
-    synchronized (clientHandlers) {
-        clientHandlers.add(this);
-    }
-    
-    // Notify all clients
-    broadcast(username + " joined the chat!", this);
-    
-    // Continuously read messages
-    while (true) {
-        String message = in.readLine();
-        String formattedMessage = "[" + timestamp + "] " + username + ": " + message;
-        broadcast(formattedMessage, null);
-    }
-}
-3. Message Broadcasting
-javaprivate void broadcast(String message, ClientHandler excludeUser) {
-    synchronized (clientHandlers) { // Thread-safe access
-        for (ClientHandler client : clientHandlers) {
-            if (client != excludeUser) {
-                client.out.println(message); // Send to each client
-            }
-        }
-    }
-}
-Client-Side Operation
+ e Operation
 1. Connection Establishment
 java// Connect to server
 Socket socket = new Socket("localhost", 5000);
@@ -226,22 +197,7 @@ javaprivate void sendMessage() {
 Network Protocol Details
 TCP Connection Flow
 Client                                Server
-  |                                      |
-  |------ SYN ----------------------->  | (Connection Request)
-  |                                      |
-  |<----- SYN-ACK -------------------   | (Acknowledgment)
-  |                                      |
-  |------ ACK ----------------------->  | (Connection Established)
-  |                                      |
-  |------ Username: "Alice" --------->  | (First Message)
-  |                                      |
-  |<----- "Bob joined the chat" ------  | (Broadcast)
-  |                                      |
-  |------ "Hello!" ------------------>  | (Chat Message)
-  |                                      |
-  |<----- "[14:30:45] Alice: Hello!" -  | (Formatted Broadcast)
-  |                                      |
-Port Configuration
+
 ComponentPort TypePort NumberDescriptionServerFixed5000Listening port for incoming connectionsClient 1Ephemeral52341OS-assigned temporary portClient 2Ephemeral52342OS-assigned temporary portClient 3Ephemeral52343OS-assigned temporary port
 Message Protocol
 Format: Text-based, line-delimited protocol
@@ -253,64 +209,8 @@ Username Message (first message from client)
 
 Chat Message (subsequent messages)
 
-   Hello everyone!
 
-Formatted Broadcast (server to clients)
 
-   [14:30:45] Alice: Hello everyone!
-
-System Notification
-
-   Bob joined the chat!
-   Alice left the chat.
-Threading Model
-Server Threads
-┌──────────────────────────────────────┐
-│        Main Server Process           │
-│                                      │
-│  ┌────────────────────────────┐    │
-│  │   Main Thread              │    │
-│  │   while(true) {            │    │
-│  │     accept();  // BLOCKS   │    │
-│  │     create thread          │    │
-│  │   }                        │    │
-│  └────────────────────────────┘    │
-│                                      │
-│  ┌────────────────────────────┐    │
-│  │ ClientHandler Thread 1     │    │
-│  │ while(true) {              │    │
-│  │   readLine(); // BLOCKS    │    │
-│  │   broadcast();             │    │
-│  │ }                          │    │
-│  └────────────────────────────┘    │
-│                                      │
-│  ┌────────────────────────────┐    │
-│  │ ClientHandler Thread 2     │    │
-│  └────────────────────────────┘    │
-│                                      │
-│  ┌────────────────────────────┐    │
-│  │ ClientHandler Thread N     │    │
-│  └────────────────────────────┘    │
-└──────────────────────────────────────┘
-Client Threads
-┌──────────────────────────────────────┐
-│         Client Process               │
-│                                      │
-│  ┌────────────────────────────┐    │
-│  │   Main Thread (GUI)        │    │
-│  │   - Handle button clicks   │    │
-│  │   - Process user input     │    │
-│  │   - Update UI components   │    │
-│  └────────────────────────────┘    │
-│                                      │
-│  ┌────────────────────────────┐    │
-│  │   Reader Thread            │    │
-│  │   while(true) {            │    │
-│  │     readLine(); // BLOCKS  │    │
-│  │     updateGUI();           │    │
-│  │   }                        │    │
-│  └────────────────────────────┘    │
-└──────────────────────────────────────┘
 Technical Details
 Synchronization
 Problem: Multiple threads accessing shared ArrayList<ClientHandler> simultaneously
@@ -421,36 +321,6 @@ Commit your changes (git commit -m 'Add some AmazingFeature')
 Push to the branch (git push origin feature/AmazingFeature)
 Open a Pull Request
 
-Code Style
 
-Follow Java naming conventions
-Add comments for complex logic
-Keep methods under 50 lines
-Write descriptive commit messages
 
-License
-This project is licensed under the MIT License - see the LICENSE file for details.
-MIT License
 
-Copyright (c) 2024 [Your Name]
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-Acknowledgments
-
-Java Socket Programming Documentation
-Oracle Java Swing Tutorial
-Stack Overflow Community
-IntelliJ IDEA Documentation
-
-Contact
-Your Name - @yourtwitter - your.email@example.com
-Project Link: https://github.com/yourusername/multi-client-chat-app
-LinkedIn: Your LinkedIn Profile
